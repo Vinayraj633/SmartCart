@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard — SmartCart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body data-page="admin">
+<!-- ⭐ Block browser back button from leaving admin -->
+<script>
+    (function() {
+      window.history.pushState(null, null, window.location.href);
+      window.addEventListener('popstate', function () {
+        window.history.pushState(null, null, window.location.href);
+      });
+    })();
+</script>
+
+<header class="admin-header">
+    <div class="logo">
+        <a href="admin.html">
+            <span class="logo-icon">🛒</span>
+            <span class="logo-text">Smart<span>Cart</span></span>
+            <span class="admin-badge">ADMIN</span>
+        </a>
+    </div>
+    <div class="nav">
+        <span id="adminInfo"></span>
+        <a href="#" class="btn-nav ghost" onclick="adminLogout()">Logout</a>
+    </div>
+</header>
+
+<main class="admin-page">
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-value" id="statProducts">—</div><div class="stat-label">Products</div></div>
+        <div class="stat-card"><div class="stat-icon">🧾</div><div class="stat-value" id="statOrders">—</div><div class="stat-label">Orders</div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="statUsers">—</div><div class="stat-label">Users</div></div>
+        <div class="stat-card accent"><div class="stat-icon">💰</div><div class="stat-value" id="statRevenue">—</div><div class="stat-label">Revenue</div></div>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="products" onclick="switchTab('products')">Products</button>
+        <button class="tab-btn" data-tab="orders" onclick="switchTab('orders')">Orders</button>
+    </div>
+
+    <section id="tab-products" class="admin-tab-content">
+        <div class="tab-header">
+            <h2>Products</h2>
+            <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
+        </div>
+
+        <div class="admin-search-wrap">
+            <span class="admin-search-icon">🔍</span>
+            <input id="adminProductSearch" type="text"
+                   placeholder="Search products by name, ID, or category…"
+                   oninput="filterAdminProducts()">
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="adminProductBody"></tbody>
+            </table>
+            <div id="adminNoProducts" class="admin-no-results" style="display:none;">
+                <div style="font-size:36px;margin-bottom:8px;">🔍</div>
+                <div>No products match your search</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tab-orders" class="admin-tab-content" style="display:none;">
+        <div class="tab-header">
+            <h2>Orders</h2>
+            <span class="sub" id="orderCount"></span>
+        </div>
+
+        <div class="admin-search-wrap">
+            <span class="admin-search-icon">🔍</span>
+            <input id="adminOrderSearch" type="text"
+                   placeholder="Search orders by customer name, email, or order #…"
+                   oninput="filterAdminOrders()">
+        </div>
+
+        <div id="adminOrdersList"></div>
+        <div id="adminNoOrders" class="admin-no-results" style="display:none;">
+            <div style="font-size:36px;margin-bottom:8px;">🔍</div>
+            <div>No orders match your search</div>
+        </div>
+    </section>
+</main>
+
+<div id="productModal" class="modal-overlay">
+    <div class="modal-box admin-modal">
+        <h3 class="modal-title" id="productModalTitle">Add Product</h3>
+        <form onsubmit="return saveProduct(event)" style="text-align:left;">
+            <label>Product ID</label>
+            <input id="pm-id" required placeholder="P116">
+
+            <label>Name</label>
+            <input id="pm-name" required placeholder="Bluetooth Speaker">
+
+            <label>Category</label>
+            <select id="pm-category" required>
+                <option value="Electronics">Electronics</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Home">Home</option>
+                <option value="Stationery">Stationery</option>
+            </select>
+
+            <label>Price (₹)</label>
+            <input id="pm-price" type="number" step="0.01" min="0" required placeholder="1499.00">
+
+            <label>Stock</label>
+            <input id="pm-stock" type="number" min="0" required placeholder="50">
+
+            <input type="hidden" id="pm-mode" value="create">
+
+            <div class="modal-actions" style="margin-top:24px;">
+                <button type="button" class="modal-btn cancel" onclick="closeProductModal()">Cancel</button>
+                <button type="submit" class="modal-btn confirm admin-confirm">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>

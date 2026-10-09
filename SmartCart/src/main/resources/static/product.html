@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product — SmartCart</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="product">
+
+<header>
+    <div class="logo">
+        <a href="index.html">
+            <span class="logo-icon">🛒</span>
+            <span class="logo-text">Smart<span>Cart</span></span>
+        </a>
+    </div>
+    <nav class="nav">
+        <a href="index.html" class="btn-nav ghost">← Back to shop</a>
+        <a href="wishlist.html" class="btn-nav ghost" id="wishlistNav">
+            ♥ Wishlist <span class="badge" id="wishCount" style="display:none;">0</span>
+        </a>
+        <a href="cart.html" class="cart-link">
+            🛍️ Cart <span class="badge" id="cartCount">0</span>
+        </a>
+        <span id="userInfo"></span>
+        <a href="login.html" class="btn-nav" id="loginLink">Login</a>
+        <a href="#" class="btn-nav ghost" id="logoutLink" style="display:none;" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<main class="product-page" id="productPage">
+    <div class="product-loading" id="productLoading">
+        <div class="skel skel-img"></div>
+        <div class="skel-body">
+            <div class="skel skel-line w-60"></div>
+            <div class="skel skel-line w-90"></div>
+            <div class="skel skel-line w-40"></div>
+            <div class="skel skel-line w-80"></div>
+        </div>
+    </div>
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="js/app.js"></script>
+<script src="js/product.js"></script>
+</body>
+</html>

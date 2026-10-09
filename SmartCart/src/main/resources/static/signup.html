@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — SmartCart</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="signup">
+
+<div class="auth-wrap">
+
+    <aside class="auth-side">
+        <div class="auth-side-inner">
+
+            <a href="index.html" class="auth-logo">
+                <span class="auth-logo-icon">🛒</span>
+                <span>SmartCart</span>
+            </a>
+
+            <h1 class="auth-hero">Join the club.</h1>
+            <p class="auth-sub">
+                Start shopping in seconds. Upgrade to Premium or VIP
+                anytime from your profile.
+            </p>
+
+            <div class="tier-list">
+                <div class="tier-card">
+                    <div class="tier-meta">
+                        <div class="tier-name">REGULAR</div>
+                        <div class="tier-desc">Standard pricing</div>
+                    </div>
+                    <div class="tier-rate">0%</div>
+                </div>
+                <div class="tier-card">
+                    <div class="tier-meta">
+                        <div class="tier-name">PREMIUM</div>
+                        <div class="tier-desc">Save on every order</div>
+                    </div>
+                    <div class="tier-rate">5%</div>
+                </div>
+                <div class="tier-card tier-card-vip">
+                    <span class="tier-badge">POPULAR</span>
+                    <div class="tier-meta">
+                        <div class="tier-name">VIP</div>
+                        <div class="tier-desc">Best savings</div>
+                    </div>
+                    <div class="tier-rate">10%</div>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <main class="auth-main">
+        <div class="auth-box">
+
+            <a href="index.html" class="auth-back">← Back to shop</a>
+
+            <h2 class="auth-title">Create account</h2>
+            <p class="auth-caption">Join in seconds</p>
+
+            <form id="signupForm" onsubmit="return doSignup(event)" novalidate>
+
+                <div class="form-group">
+                    <label for="name">FULL NAME</label>
+                    <input type="text" id="name" name="name"
+                           placeholder="John Doe" autocomplete="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">EMAIL</label>
+                    <input type="email" id="email" name="email"
+                           placeholder="you@example.com" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="At least 4 characters"
+                           autocomplete="new-password" minlength="4" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">CONFIRM PASSWORD</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Re-enter your password"
+                           autocomplete="new-password" minlength="4" required>
+                    <div id="passwordMismatch" class="field-error" style="display:none;">
+                        Passwords do not match
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-submit" id="signupBtn">
+                    Create Account
+                </button>
+
+            </form>
+
+            <p class="auth-foot">
+                Already have an account?
+                <a href="login.html" class="auth-foot-link">Login →</a>
+            </p>
+
+        </div>
+    </main>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>

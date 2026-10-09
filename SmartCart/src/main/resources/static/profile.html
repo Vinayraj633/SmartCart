@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Account — SmartCart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body data-page="profile">
+
+<script>
+    (function() {
+      fetch('api/user/me')
+        .then(r => r.json())
+        .then(data => {
+          if (data.loggedIn && data.isAdmin === true) {
+            window.location.replace('admin.html');
+          }
+        })
+        .catch(() => {});
+    })();
+</script>
+
+<header>
+    <div class="logo">
+        <a href="index.html">
+            <span class="logo-icon">🛒</span>
+            <span class="logo-text">Smart<span>Cart</span></span>
+        </a>
+    </div>
+    <div class="nav">
+        <a href="wishlist.html" class="btn-nav ghost" id="wishlistNav">
+            ♥ Wishlist <span id="wishCount" class="badge" style="display:none;">0</span>
+        </a>
+        <a href="profile.html" id="userInfo"></a>
+        <a href="cart.html" class="cart-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            Cart <span id="cartCount" class="badge">0</span>
+        </a>
+        <a href="login.html" id="loginLink" class="btn-nav">Login</a>
+        <a href="#" id="logoutLink" class="btn-nav ghost" style="display:none;" onclick="logout(); return false;">Logout</a>
+    </div>
+</header>
+
+<div class="account-layout">
+
+    <aside class="account-sidebar">
+        <div class="account-user">
+            <div class="account-avatar" id="sidebarAvatar">?</div>
+            <div>
+                <div class="account-hello">Hello,</div>
+                <div class="account-name" id="sidebarName">User</div>
+            </div>
+        </div>
+
+        <nav class="account-nav">
+            <div class="nav-item active" data-panel="panel-orders" onclick="switchAccountPanel('panel-orders', this)">
+                <span class="nav-icon">📦</span>
+                <span>My Orders</span>
+            </div>
+            <div class="nav-item" data-panel="panel-account" onclick="switchAccountPanel('panel-account', this)">
+                <span class="nav-icon">👤</span>
+                <span>Account Details</span>
+            </div>
+            <div class="nav-item" data-panel="panel-membership" onclick="switchAccountPanel('panel-membership', this)">
+                <span class="nav-icon">🎖️</span>
+                <span>Membership</span>
+            </div>
+            <div class="nav-item" data-panel="panel-coupons" onclick="switchAccountPanel('panel-coupons', this)">
+                <span class="nav-icon">🎟️</span>
+                <span>Coupons</span>
+            </div>
+            <div class="nav-item logout-item" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span>Logout</span>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="account-main">
+        <div class="profile-head-compact">
+            <div class="profile-avatar" id="avatar">?</div>
+            <div class="profile-info">
+                <h1 id="profileName">Loading…</h1>
+                <div class="email" id="profileEmail"></div>
+                <span class="profile-tier-badge" id="profileTier">REGULAR</span>
+            </div>
+        </div>
+
+        <section id="panel-orders" class="account-panel active">
+            <h2 class="panel-title">📦 My Orders</h2>
+            <div id="myOrdersList" class="my-orders-list">
+                <div class="orders-loading">Loading orders…</div>
+            </div>
+        </section>
+
+        <section id="panel-account" class="account-panel">
+            <h2 class="panel-title">👤 Account Details</h2>
+            <div class="account-info">
+                <div class="info-row"><span class="label">Full Name</span><span class="value" id="infoName">—</span></div>
+                <div class="info-row"><span class="label">Email</span><span class="value" id="infoEmail">—</span></div>
+                <div class="info-row"><span class="label">Customer ID</span><span class="value" id="infoId">—</span></div>
+                <div class="info-row"><span class="label">Current Tier</span><span class="value" id="infoTier">—</span></div>
+            </div>
+            <div class="profile-actions">
+                <a href="index.html" class="primary">Continue Shopping</a>
+                <a href="cart.html" class="secondary">View Cart</a>
+            </div>
+        </section>
+
+        <section id="panel-membership" class="account-panel">
+            <h2 class="panel-title">🎖️ Membership Tiers</h2>
+            <div class="member-grid" id="memberGrid"></div>
+        </section>
+
+        <section id="panel-coupons" class="account-panel">
+            <h2 class="panel-title">🎟️ Available Coupons</h2>
+            <div class="coupons-list">
+                <div class="coupon-card">
+                    <div class="coupon-code">SAVE10</div>
+                    <div class="coupon-desc">
+                        <div><b>10% off</b> · Min cart ₹3,000</div>
+                        <div class="coupon-sub">Max discount ₹1,000</div>
+                    </div>
+                </div>
+                <div class="coupon-card">
+                    <div class="coupon-code">SAVE15</div>
+                    <div class="coupon-desc">
+                        <div><b>15% off</b> · Min cart ₹7,000</div>
+                        <div class="coupon-sub">Max discount ₹2,000</div>
+                    </div>
+                </div>
+                <div class="coupon-card">
+                    <div class="coupon-code">FLAT500</div>
+                    <div class="coupon-desc">
+                        <div><b>₹500 flat off</b> · Min cart ₹5,000</div>
+                        <div class="coupon-sub">Max discount ₹500</div>
+                    </div>
+                </div>
+                <div class="coupon-card vip-coupon">
+                    <div class="coupon-code">VIP20</div>
+                    <div class="coupon-desc">
+                        <div><b>20% off</b> · VIP customers only</div>
+                        <div class="coupon-sub">Min cart ₹10,000 · Max ₹3,000</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<div id="toast"></div>
+
+<div id="logoutModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">🚪</div>
+        <h3 class="modal-title">Logout?</h3>
+        <p class="modal-message">Are you sure you want to logout? Your cart will be cleared.</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="cancelLogout()">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmLogout()">Yes, Logout</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

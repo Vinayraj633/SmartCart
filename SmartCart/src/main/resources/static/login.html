@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — SmartCart</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="login">
+
+<div class="auth-wrap">
+
+    <aside class="auth-side">
+        <div class="auth-side-inner">
+
+            <a href="index.html" class="auth-logo">
+                <span class="auth-logo-icon">🛒</span>
+                <span>SmartCart</span>
+            </a>
+
+            <h1 class="auth-hero">Welcome back.</h1>
+            <p class="auth-sub">
+                Login to access exclusive discounts, saved carts,
+                and premium pricing.
+            </p>
+
+            <div class="perk-list">
+                <div class="perk-item">
+                    <div class="perk-icon">💰</div>
+                    <div class="perk-text">
+                        <div class="perk-title">Instant discounts</div>
+                        <div class="perk-desc">Up to 10% off for VIP</div>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-icon">🎟️</div>
+                    <div class="perk-text">
+                        <div class="perk-title">Exclusive coupons</div>
+                        <div class="perk-desc">SAVE10, SAVE15, VIP20</div>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-icon">⚡</div>
+                    <div class="perk-text">
+                        <div class="perk-title">Fast checkout</div>
+                        <div class="perk-desc">One-click ordering</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <main class="auth-main">
+        <div class="auth-box">
+
+            <a href="index.html" class="auth-back">← Back to shop</a>
+
+            <h2 class="auth-title">Login</h2>
+            <p class="auth-caption">Enter your credentials to continue</p>
+
+            <form id="loginForm" onsubmit="return doLogin(event)" novalidate>
+
+                <div class="form-group">
+                    <label for="email">EMAIL</label>
+                    <input type="email" id="email" name="email"
+                           placeholder="you@example.com" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password"
+                           autocomplete="current-password" required>
+                </div>
+
+                <button type="submit" class="auth-submit" id="loginBtn">
+                    Login
+                </button>
+
+            </form>
+
+            <p class="auth-foot">
+                Don't have an account?
+                <a href="signup.html" class="auth-foot-link">Create one →</a>
+            </p>
+
+        </div>
+    </main>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>

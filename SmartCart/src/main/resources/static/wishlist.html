@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist — SmartCart</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="wishlist">
+
+<header>
+    <div class="logo">
+        <a href="index.html">
+            <span class="logo-icon">🛒</span>
+            <span class="logo-text">Smart<span>Cart</span></span>
+        </a>
+    </div>
+    <nav class="nav">
+        <a href="index.html" class="btn-nav ghost">← Back to shop</a>
+        <a href="wishlist.html" class="btn-nav ghost">
+            ♥ Wishlist <span class="badge" id="wishCount">0</span>
+        </a>
+        <a href="cart.html" class="cart-link">
+            🛍️ Cart <span class="badge" id="cartCount">0</span>
+        </a>
+        <span id="userInfo"></span>
+        <a href="login.html" class="btn-nav" id="loginLink">Login</a>
+        <a href="#" class="btn-nav ghost" id="logoutLink" style="display:none;" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<main class="products-page">
+    <div class="page-head">
+        <h2>My Wishlist ❤️</h2>
+        <div class="sub" id="wishlistCount">0 items</div>
+    </div>
+    <div class="grid" id="wishlistGrid"></div>
+    <div class="no-results" id="wishlistEmpty" style="display:none;">
+        <div style="font-size:72px;margin-bottom:16px;">💔</div>
+        <h3>Your wishlist is empty</h3>
+        <p>Save your favourite products to see them here.</p>
+        <a href="index.html" class="empty-btn" style="display:inline-block;margin-top:20px;padding:12px 28px;background:linear-gradient(135deg,#0a0a0a,#000);color:#fff;border-radius:12px;font-weight:800;text-decoration:none;">
+            Browse products →
+        </a>
+    </div>
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>

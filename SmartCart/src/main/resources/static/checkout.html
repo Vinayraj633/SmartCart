@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout — SmartCart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body data-page="checkout">
+<!-- ⭐ Admin guard -->
+<script>
+    (function() {
+      fetch('api/user/me')
+        .then(r => r.json())
+        .then(data => {
+          if (data.loggedIn && data.isAdmin === true) {
+            window.location.replace('admin.html');
+          }
+        })
+        .catch(() => {});
+    })();
+</script>
+
+<header>
+    <div class="logo"><a href="index.html"><span class="logo-icon">🛒</span><span class="logo-text">Smart<span>Cart</span></span></a></div>
+    <div class="nav">
+        <a href="wishlist.html" class="btn-nav ghost" id="wishlistNav">
+            ♥ Wishlist <span id="wishCount" class="badge" style="display:none;">0</span>
+        </a>
+        <a href="profile.html" id="userInfo"></a>
+        <a href="cart.html" class="cart-link">🛒 Cart <span id="cartCount" class="badge">0</span></a>
+        <a href="#" id="logoutLink" class="btn-nav ghost" style="display:none;" onclick="logout()">Logout</a>
+    </div>
+</header>
+
+<main class="checkout-page">
+    <h1>Checkout</h1>
+
+    <div class="checkout-grid">
+
+        <!-- LEFT: Delivery address form (Amazon step 1) -->
+        <div class="checkout-form-wrap">
+            <div class="co-step-head">
+                <span class="co-step-num">1</span>
+                <h2>Delivery address</h2>
+            </div>
+
+            <form id="checkoutForm" class="checkout-form" onsubmit="return placeOrder(event)">
+                <label>Full Name</label>
+                <input id="co-name" type="text" required placeholder="John Doe" autocomplete="name">
+
+                <label>Phone Number</label>
+                <input id="co-phone" type="tel" required
+                       maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
+                       placeholder="10-digit mobile number" autocomplete="tel">
+
+                <label>Address Line</label>
+                <input id="co-address" type="text" required
+                       placeholder="Flat / House / Street / Area" autocomplete="street-address">
+
+                <div class="co-row-2">
+                    <div>
+                        <label>City</label>
+                        <input id="co-city" type="text" required placeholder="Mumbai" autocomplete="address-level2">
+                    </div>
+                    <div>
+                        <label>State</label>
+                        <input id="co-state" type="text" required placeholder="Maharashtra" autocomplete="address-level1">
+                    </div>
+                </div>
+
+                <label>PIN Code</label>
+                <input id="co-pincode" type="text" required
+                       maxlength="6" inputmode="numeric" pattern="[0-9]{6}"
+                       placeholder="400001" autocomplete="postal-code">
+
+                <div class="payment-note">
+                    <span>💵</span> Cash on Delivery (Demo — no real payment)
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT: Amazon-style order summary -->
+        <aside class="checkout-summary">
+            <div class="side-box co-summary-amz">
+
+                <!-- Delivering to block -->
+                <div class="co-deliver-to">
+                    <div class="co-deliver-label">Delivering to</div>
+                    <div class="co-deliver-name" id="coDeliverName">Customer</div>
+                    <div class="co-deliver-addr" id="coDeliverAddr">
+                        Add your delivery address
+                    </div>
+                    <div class="co-deliver-eta" id="coDeliverEta"></div>
+                </div>
+
+                <!-- Items list -->
+                <div class="co-items-head">
+                    <span>Items</span>
+                    <span class="co-items-sub" id="coItemsSub">—</span>
+                </div>
+                <div id="checkoutItems" class="checkout-items-amz"></div>
+
+                <!-- Cost breakdown -->
+                <div class="co-costs-head">Order Summary</div>
+                <div class="side-row"><span>Items</span><span id="s-subtotal">₹0.00</span></div>
+                <div class="side-row"><span>Bulk Discount</span><span id="s-bulk">-₹0.00</span></div>
+                <div class="side-row"><span>Category Discount</span><span id="s-cat">-₹0.00</span></div>
+                <div class="side-row"><span>Customer Discount</span><span id="s-cust">-₹0.00</span></div>
+                <div class="side-row"><span>Coupon Discount</span><span id="s-coupon">-₹0.00</span></div>
+                <div class="side-row"><span>GST (18%)</span><span id="s-gst">₹0.00</span></div>
+                <div class="side-row total"><span>Order Total</span><span id="s-final">₹0.00</span></div>
+
+                <button type="button" class="co-place-btn" onclick="placeOrder()">
+                    <span>Place your order</span>
+                </button>
+
+                <div class="co-legal">
+                    By placing your order, you agree to SmartCart's
+                    <a href="#">privacy notice</a> and <a href="#">conditions of use</a>.
+                </div>
+
+                <div class="customer-display">
+                    Customer Type: <b id="custType">REGULAR</b>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<div id="toast"></div>
+
+<div id="logoutModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">🚪</div>
+        <h3 class="modal-title">Logout?</h3>
+        <p class="modal-message">Are you sure you want to logout? Your cart will be cleared.</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="cancelLogout()">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmLogout()">Yes, Logout</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
