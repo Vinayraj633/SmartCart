@@ -68,10 +68,6 @@ function renderProductDetail(p, rating, reviews, inWishlist) {
 
       <div class="product-info">
 
-        <span class="cat-badge cat-${p.category.toLowerCase()}" style="position:static;display:inline-block;margin-bottom:12px;">
-          ${p.category}
-        </span>
-
         <h1 class="product-title">${escapeHtml(p.name)}</h1>
 
         <div class="product-rating-row" id="productRatingRow">
