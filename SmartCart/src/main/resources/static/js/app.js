@@ -2087,12 +2087,12 @@ function renderAdminOrders(orders) {
     <div class="order-card">
       <div class="order-head">
         <div>
-          <div class="order-customer">
-            <span class="order-avatar">${initials(o.userName || "?")}</span>
-            <div>
-              <div class="order-id">${escapeHtml(o.userName || "Guest")}</div>
-              <div class="order-meta">${escapeHtml(o.userEmail || "no email")} · Order #${o.orderId}</div>
-            </div>
+          <div class="order-customer clickable" onclick="showUserDetails(${o.orderId})">
+              <span class="order-avatar">${initials(o.userName || "?")}</span>
+              <div>
+                  <div class="order-id">${escapeHtml(o.userName || "Guest")} <span style="font-size:11px;color:#888;font-weight:500;">▸ view details</span></div>
+                  <div class="order-meta">${escapeHtml(o.userEmail || "no email")} · Order #${o.orderId}</div>
+              </div>
           </div>
           <div class="order-submeta">
             ${o.createdAt} · ${o.customerType}${o.couponCode ? ' · Coupon: ' + o.couponCode : ''}
@@ -2252,4 +2252,100 @@ async function restoreProduct(pid) {
   else if (PAGE === "checkout") await loadCheckout();
   else if (PAGE === "profile") await loadProfile();
   else if (PAGE === "wishlist") await renderWishlist();
+
+  /* ========================================================================
+     ADMIN — USER DETAILS MODAL
+     ======================================================================== */
+  function showUserDetails(orderId) {
+    const order = (ADMIN_CACHE.orders || []).find(o => o.orderId === orderId);
+    if (!order) { showToast("Order not found", true); return; }
+
+    const modal = document.getElementById("userDetailsModal");
+    const body  = document.getElementById("userDetailsBody");
+    if (!modal || !body) return;
+
+    const items = order.items || [];
+    const addr  = [order.addressLine, order.city, order.state, order.pincode]
+                    .filter(Boolean).join(", ") || "—";
+
+    const rows = [
+      ["Order ID",      "#" + order.orderId],
+      ["Customer Name", order.userName  || "Guest"],
+      ["Email",         order.userEmail || "—"],
+      ["Phone",         order.phone     || "—"],
+      ["Customer Type", order.customerType || "REGULAR"],
+      ["Order Status",  order.status || "PLACED"],
+      ["Coupon",        order.couponCode || "—"],
+      ["Delivery Address", addr],
+      ["Order Date",    order.createdAt || "—"]
+    ];
+
+    const itemRows = items.map(it => `
+      <tr>
+        <td><code>${escapeHtml(it.productId)}</code></td>
+        <td>${escapeHtml(it.productName || it.productId)}</td>
+        <td>× ${it.quantity}</td>
+        <td>${money(it.unitPrice)}</td>
+        <td><b>${money(it.lineTotal)}</b></td>
+      </tr>`).join("");
+
+    body.innerHTML = `
+      <div class="user-details-section">
+        <div class="user-details-label">Customer Information</div>
+        <table class="user-details-table">
+          <tbody>
+            ${rows.map(([k, v]) => `
+              <tr>
+                <td class="ud-key">${escapeHtml(k)}</td>
+                <td class="ud-val">${escapeHtml(String(v))}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="user-details-section">
+        <div class="user-details-label">Items Ordered (${items.length})</div>
+        <table class="user-details-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemRows}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="user-details-section">
+        <div class="user-details-label">Bill Summary</div>
+        <table class="user-details-table">
+          <tbody>
+            <tr><td class="ud-key">Subtotal</td>       <td class="ud-val">${money(order.subtotal)}</td></tr>
+            <tr><td class="ud-key">Total Discount</td> <td class="ud-val" style="color:#16a34a;">−${money(order.totalDiscount)}</td></tr>
+            <tr><td class="ud-key">GST</td>            <td class="ud-val">${money(order.gst)}</td></tr>
+            <tr class="ud-total-row"><td class="ud-key">Grand Total</td> <td class="ud-val"><b>${money(order.finalAmount)}</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    modal.classList.add("show");
+  }
+
+  function closeUserDetails() {
+    const modal = document.getElementById("userDetailsModal");
+    if (modal) modal.classList.remove("show");
+  }
+
+  // Close on outside click
+  document.addEventListener("click", (e) => {
+    const modal = document.getElementById("userDetailsModal");
+    if (modal && e.target === modal) modal.classList.remove("show");
+  });
+
 })();

@@ -79,10 +79,12 @@ public class AdminDAO {
 
     /* ====================================================================
        ALL ORDERS (admin)
+       ✅ FIX: SELECT user_name and user_email
        ==================================================================== */
     public List<Order> getAllOrders() throws Exception {
         String sql =
-                "SELECT order_id, user_id, subtotal, total_discount, gst, final_amount, " +
+                "SELECT order_id, user_id, user_name, user_email, " +
+                        "subtotal, total_discount, gst, final_amount, " +
                         "customer_type, coupon_code, address_line, city, state, pincode, phone, " +
                         "created_at, status, cancel_reason " +
                         "FROM orders ORDER BY created_at DESC";
@@ -108,7 +110,8 @@ public class AdminDAO {
        ==================================================================== */
     public List<Order> getOrdersByUserId(int userId) throws Exception {
         String sql =
-                "SELECT order_id, user_id, subtotal, total_discount, gst, final_amount, " +
+                "SELECT order_id, user_id, user_name, user_email, " +
+                        "subtotal, total_discount, gst, final_amount, " +
                         "customer_type, coupon_code, address_line, city, state, pincode, phone, " +
                         "created_at, status, cancel_reason " +
                         "FROM orders WHERE user_id = ? ORDER BY created_at DESC";
@@ -132,11 +135,14 @@ public class AdminDAO {
 
     /* ====================================================================
        Helper — map one row to an Order object
+       ✅ FIX: read user_name and user_email
        ==================================================================== */
     private Order mapOrder(ResultSet rs) throws Exception {
         Order o = new Order();
         o.setOrderId(rs.getInt("order_id"));
         o.setUserId(rs.getInt("user_id"));
+        o.setUserName(rs.getString("user_name"));
+        o.setUserEmail(rs.getString("user_email"));
         o.setSubtotal(rs.getBigDecimal("subtotal"));
         o.setTotalDiscount(rs.getBigDecimal("total_discount"));
         o.setGst(rs.getBigDecimal("gst"));

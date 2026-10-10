@@ -184,3 +184,51 @@ CREATE TABLE IF NOT EXISTS reviews (
 USE smart_cart;
 SELECT order_id, status, created_at FROM orders WHERE user_id = 2;
 
+USE smart_cart;
+
+CREATE TABLE IF NOT EXISTS wishlist (
+    wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT NOT NULL,
+    product_id  VARCHAR(20) NOT NULL,
+    added_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_user_product_wish (user_id, product_id),
+    INDEX idx_wish_user (user_id),
+    INDEX idx_wish_product (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+USE smart_cart;
+
+CREATE TABLE IF NOT EXISTS membership_payments (
+    payment_id      INT AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT NOT NULL,
+    tier            VARCHAR(20) NOT NULL,
+    amount          DECIMAL(10,2) NOT NULL,
+    payment_method  VARCHAR(40),
+    paid_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_mp_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE membership_payments
+  ADD COLUMN status      VARCHAR(20) DEFAULT 'PAID',
+  ADD COLUMN invoice_no  VARCHAR(40) DEFAULT NULL,
+  ADD COLUMN starts_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN ends_at     TIMESTAMP NULL DEFAULT NULL;
+  
+  CREATE TABLE IF NOT EXISTS memberships (
+    membership_id     INT AUTO_INCREMENT PRIMARY KEY,
+    user_id           INT NOT NULL UNIQUE,
+    tier              VARCHAR(20) NOT NULL DEFAULT 'REGULAR',
+    started_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    renews_at         TIMESTAMP NULL DEFAULT NULL,
+    auto_renew        TINYINT(1) DEFAULT 1,
+    cancelled_at      TIMESTAMP NULL DEFAULT NULL,
+    cancellation_note VARCHAR(255) DEFAULT NULL,
+    INDEX idx_mem_user (user_id),
+    INDEX idx_mem_renews (renews_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO memberships (user_id, tier, renews_at, auto_renew)
+SELECT id, customer_type, NULL, 1 FROM users;
+
+SELECT * FROM memberships;
+SELECT * FROM membership_payments;
