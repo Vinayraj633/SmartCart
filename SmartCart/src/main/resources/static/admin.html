@@ -44,6 +44,7 @@
     <div class="admin-tabs">
         <button class="tab-btn active" data-tab="products" onclick="switchTab('products')">Products</button>
         <button class="tab-btn" data-tab="orders" onclick="switchTab('orders')">Orders</button>
+        <button class="tab-btn" data-tab="users" onclick="switchTab('users')">Users</button>
     </div>
 
     <section id="tab-products" class="admin-tab-content">
@@ -97,6 +98,41 @@
         <div id="adminNoOrders" class="admin-no-results" style="display:none;">
             <div style="font-size:36px;margin-bottom:8px;">🔍</div>
             <div>No orders match your search</div>
+        </div>
+    </section>
+
+    <!-- ✅ Users Tab -->
+    <section id="tab-users" class="admin-tab-content" style="display:none;">
+        <div class="tab-header">
+            <h2>Users</h2>
+            <span class="sub" id="userCount"></span>
+        </div>
+
+        <div class="admin-search-wrap">
+            <span class="admin-search-icon">🔍</span>
+            <input id="adminUserSearch" type="text"
+                   placeholder="Search users by name, email, or ID…"
+                   oninput="filterAdminUsers()">
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                </tr>
+                </thead>
+                <tbody id="adminUserBody"></tbody>
+            </table>
+            <div id="adminNoUsers" class="admin-no-results" style="display:none;">
+                <div style="font-size:36px;margin-bottom:8px;">🔍</div>
+                <div>No users match your search</div>
+            </div>
         </div>
     </section>
 </main>

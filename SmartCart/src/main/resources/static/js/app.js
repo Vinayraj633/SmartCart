@@ -12,7 +12,8 @@ let ALL_PRODUCTS = [];
 let CURRENT_CATEGORY = "all";
 let CURRENT_SEARCH = "";
 
-let ADMIN_CACHE = { products: [], orders: [] };
+let ADMIN_CACHE = { products: [], orders: [], users: [] };
+let ADMIN_FILTERED_USERS = [];
 let ADMIN_FILTERED_PRODUCTS = [];
 let ADMIN_FILTERED_ORDERS = [];
 
@@ -2018,6 +2019,7 @@ async function loadAdminDashboard() {
   setTxt("statRevenue",  money(stats.totalRevenue ?? 0));
   await loadAdminProducts();
   await loadAdminOrders();
+  await loadAdminUsers();
 }
 
 async function loadAdminProducts() {
@@ -2141,8 +2143,10 @@ function switchTab(tab) {
     b.classList.toggle("active", b.dataset.tab === tab));
   const tp = document.getElementById("tab-products");
   const to = document.getElementById("tab-orders");
+  const tu = document.getElementById("tab-users");
   if (tp) tp.style.display = tab === "products" ? "" : "none";
   if (to) to.style.display = tab === "orders"   ? "" : "none";
+  if (tu) tu.style.display = tab === "users"    ? "" : "none";
 }
 
 function openProductModal() {
@@ -2347,5 +2351,60 @@ async function restoreProduct(pid) {
     const modal = document.getElementById("userDetailsModal");
     if (modal && e.target === modal) modal.classList.remove("show");
   });
+
+  /* ========================================================================
+     ADMIN — USERS
+     ======================================================================== */
+  async function loadAdminUsers() {
+    try {
+      const users = await fetch(`${API}/admin/users`).then(r => r.json());
+      ADMIN_CACHE.users = Array.isArray(users) ? users : [];
+      ADMIN_FILTERED_USERS = ADMIN_CACHE.users;
+      renderAdminUsers(ADMIN_CACHE.users);
+    } catch (e) {
+      console.error("Failed to load users:", e);
+    }
+  }
+
+  function renderAdminUsers(users) {
+    const tbody = document.getElementById("adminUserBody");
+    const count = document.getElementById("userCount");
+    const noRes = document.getElementById("adminNoUsers");
+    if (!tbody) return;
+    if (count) count.textContent = `${users.length} total`;
+    if (noRes) noRes.style.display = users.length === 0 ? "block" : "none";
+    tbody.innerHTML = "";
+
+    users.forEach(u => {
+      const tr = document.createElement("tr");
+      const isAdmin = u.isAdmin === true;
+      tr.innerHTML = `
+        <td><code>#${u.id}</code></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="order-avatar" style="width:34px;height:34px;font-size:12px;">${initials(u.name)}</span>
+            <b>${escapeHtml(u.name)}</b>
+          </div>
+        </td>
+        <td>${escapeHtml(u.email)}</td>
+        <td><span class="order-badge-side ${(u.customerType || 'regular').toLowerCase()}">${escapeHtml(u.customerType || "REGULAR")}</span></td>
+        <td>${isAdmin ? '<span style="background:#fef3c7;color:#92400e;font-weight:800;font-size:11px;padding:3px 8px;border-radius:8px;">ADMIN</span>' : '<span style="color:#888;font-size:12px;">User</span>'}</td>
+        <td style="font-size:12px;color:#666;">${escapeHtml(u.createdAt || "—")}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filterAdminUsers() {
+    const q = (document.getElementById("adminUserSearch")?.value || "").trim().toLowerCase();
+    const all = ADMIN_CACHE.users || [];
+    ADMIN_FILTERED_USERS = !q ? all : all.filter(u =>
+      String(u.id).includes(q) ||
+      (u.name || "").toLowerCase().includes(q) ||
+      (u.email || "").toLowerCase().includes(q) ||
+      (u.customerType || "").toLowerCase().includes(q)
+    );
+    renderAdminUsers(ADMIN_FILTERED_USERS);
+  }
 
 })();

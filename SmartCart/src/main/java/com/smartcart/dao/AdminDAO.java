@@ -78,8 +78,34 @@ public class AdminDAO {
     }
 
     /* ====================================================================
+       ALL USERS (admin view)
+       ==================================================================== */
+    public List<Map<String, Object>> getAllUsers() throws Exception {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String sql = "SELECT id, name, email, customer_type, is_admin, created_at " +
+                "FROM users ORDER BY created_at DESC";
+
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> u = new HashMap<>();
+                u.put("id", rs.getInt("id"));
+                u.put("name", rs.getString("name"));
+                u.put("email", rs.getString("email"));
+                u.put("customerType", rs.getString("customer_type"));
+                u.put("isAdmin", rs.getBoolean("is_admin"));
+                Object created = rs.getObject("created_at");
+                u.put("createdAt", created != null ? created.toString() : null);
+                list.add(u);
+            }
+        }
+        return list;
+    }
+
+    /* ====================================================================
        ALL ORDERS (admin)
-       ✅ FIX: SELECT user_name and user_email
        ==================================================================== */
     public List<Order> getAllOrders() throws Exception {
         String sql =
@@ -106,7 +132,6 @@ public class AdminDAO {
 
     /* ====================================================================
        ORDERS BY USER — used by profile page
-       Includes ALL orders (active, delivered, cancelled).
        ==================================================================== */
     public List<Order> getOrdersByUserId(int userId) throws Exception {
         String sql =
@@ -135,7 +160,6 @@ public class AdminDAO {
 
     /* ====================================================================
        Helper — map one row to an Order object
-       ✅ FIX: read user_name and user_email
        ==================================================================== */
     private Order mapOrder(ResultSet rs) throws Exception {
         Order o = new Order();

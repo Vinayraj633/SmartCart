@@ -52,6 +52,14 @@ public class AdminController {
         return ResponseEntity.ok(orders);
     }
 
+    /* ---------------- USERS (admin view) ---------------- */
+    @GetMapping("/users")
+    public ResponseEntity<?> getUsers(HttpSession session) throws Exception {
+        if (requireAdmin(session) == null)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin access required"));
+        return ResponseEntity.ok(adminDAO.getAllUsers());
+    }
+
     /* ---------------- PRODUCTS (admin view — all) ---------------- */
     @GetMapping("/products")
     public ResponseEntity<?> getAllProductsForAdmin(HttpSession session) throws SQLException {
