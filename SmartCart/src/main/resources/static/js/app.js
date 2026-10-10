@@ -100,6 +100,17 @@ function escapeHtml(s) {
 }
 
 /* ========================================================================
+   PASSWORD SHOW/HIDE TOGGLE
+   ======================================================================== */
+function togglePassword(inputId, btnEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const isHidden = input.type === "password";
+  input.type = isHidden ? "text" : "password";
+  if (btnEl) btnEl.textContent = isHidden ? "🙈" : "👁️";
+}
+
+/* ========================================================================
    SCROLL-REVEAL
    ======================================================================== */
 function initScrollReveal() {
@@ -405,7 +416,6 @@ function applyFilters() {
     card.innerHTML = `
       <div class="card-img-wrap" onclick="location.href='product.html?id=${p.productId}'" style="cursor:pointer;">
         <img src="${productImage(p)}" alt="${escapeHtml(p.name)}" class="card-img">
-        <span class="cat-badge cat-${p.category.toLowerCase()}">${p.category}</span>
         <button class="heart-btn ${inWish ? 'active' : ''}" data-product="${p.productId}"
                 onclick="event.stopPropagation(); toggleWishlist('${p.productId}', this)"
                 title="${inWish ? 'Remove from wishlist' : 'Add to wishlist'}">
@@ -1877,7 +1887,6 @@ async function renderWishlist() {
         <div class="card-img-wrap" onclick="location.href='product.html?id=${p.productId}'" style="cursor:pointer;">
           <img src="images/${p.productId}.jpg" alt="${escapeHtml(p.name)}" class="card-img"
                onerror="this.onerror=null;this.src='${productPlaceholder(p)}'">
-          <span class="cat-badge cat-${p.category.toLowerCase()}">${p.category}</span>
           <button class="heart-btn active"
                   onclick="event.stopPropagation(); toggleWishlist('${p.productId}', this)">♥</button>
         </div>
@@ -2001,7 +2010,14 @@ async function doSignup(e) {
   if (mismatchEl) mismatchEl.style.display = "none";
   if (!name) { showToast("Please enter your full name", true); return false; }
   if (!email || !email.includes("@")) { showToast("Please enter a valid email", true); return false; }
-  if (password.length < 4) { showToast("Password must be at least 4 characters", true); return false; }
+
+  // Strong password validation
+  if (password.length < 6) { showToast("Password must be at least 6 characters", true); return false; }
+  if (!/[A-Z]/.test(password)) { showToast("Password must contain at least one uppercase letter", true); return false; }
+  if (!/[a-z]/.test(password)) { showToast("Password must contain at least one lowercase letter", true); return false; }
+  if (!/[0-9]/.test(password)) { showToast("Password must contain at least one number", true); return false; }
+  if (!/[!@#$%^&*(),.?":{}|<>_\-]/.test(password)) { showToast("Password must contain at least one special character (!@#$%^&*)", true); return false; }
+
   if (password !== confirmPassword) {
     if (mismatchEl) mismatchEl.style.display = "block";
     showToast("Passwords do not match", true);
@@ -2430,14 +2446,42 @@ async function restoreProduct(pid) {
     const pw = document.getElementById("password");
     const cpw = document.getElementById("confirmPassword");
     const mismatchEl = document.getElementById("passwordMismatch");
+    const reqsBox = document.getElementById("passwordReqs");
+
+    // Live validation for each requirement
+    const validatePassword = () => {
+      const val = pw.value;
+      const checks = {
+        length:  val.length >= 6,
+        upper:   /[A-Z]/.test(val),
+        lower:   /[a-z]/.test(val),
+        number:  /[0-9]/.test(val),
+        special: /[!@#$%^&*(),.?":{}|<>_\-]/.test(val)
+      };
+      if (reqsBox) {
+        Object.keys(checks).forEach(key => {
+          const el = reqsBox.querySelector(`[data-req="${key}"]`);
+          if (el) el.classList.toggle("valid", checks[key]);
+        });
+      }
+      return Object.values(checks).every(Boolean);
+    };
+
+    // Confirm password match check
     const checkMatch = () => {
-      if (!cpw.value) { mismatchEl.style.display = "none"; cpw.style.borderColor = ""; return; }
+      if (!cpw.value) {
+        if (mismatchEl) mismatchEl.style.display = "none";
+        cpw.style.borderColor = "";
+        return;
+      }
       const ok = pw.value === cpw.value;
-      mismatchEl.style.display = ok ? "none" : "block";
+      if (mismatchEl) mismatchEl.style.display = ok ? "none" : "block";
       cpw.style.borderColor = ok ? "" : "#dc2626";
     };
-    pw?.addEventListener("input", checkMatch);
+
+    pw?.addEventListener("input", () => { validatePassword(); checkMatch(); });
     cpw?.addEventListener("input", checkMatch);
+    validatePassword();
     return;
   }
 

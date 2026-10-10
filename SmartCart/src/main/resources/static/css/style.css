@@ -4673,3 +4673,84 @@ header {
    margin: 0;
    letter-spacing: 0.3px;
  }
+
+ /* ========================================================================
+    PASSWORD FIELD WITH SHOW/HIDE TOGGLE + REQUIREMENTS
+    ======================================================================== */
+ .password-wrap {
+   position: relative;
+   display: block;
+   width: 100%;
+ }
+
+ .password-wrap input {
+   width: 100%;
+   padding-right: 48px !important; /* space for the eye button */
+ }
+
+ .toggle-password {
+   position: absolute;
+   top: 50%;
+   right: 12px;
+   transform: translateY(-50%);
+   background: transparent;
+   border: none;
+   cursor: pointer;
+   font-size: 16px;
+   padding: 6px;
+   line-height: 1;
+   color: #888;
+   transition: color 0.15s, transform 0.15s;
+   z-index: 2;
+ }
+
+ .toggle-password:hover {
+   color: #f5b301;
+   transform: translateY(-50%) scale(1.15);
+ }
+
+ .password-reqs {
+   margin: 10px 0 18px;
+   padding: 12px 14px;
+   background: #fffbeb;
+   border: 1px solid #f1e4b8;
+   border-radius: 10px;
+   font-size: 13px;
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+ }
+
+ .password-reqs .req {
+   color: #9ca3af;
+   font-weight: 500;
+   transition: color 0.2s ease;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+ }
+
+ .password-reqs .req::before {
+   content: "○";
+   font-size: 12px;
+   color: #cbd5e1;
+   transition: all 0.2s;
+ }
+
+ .password-reqs .req.valid {
+   color: #16a34a;
+   font-weight: 700;
+ }
+
+ .password-reqs .req.valid::before {
+   content: "✓";
+   color: #16a34a;
+   font-weight: 900;
+ }
+
+ .password-mismatch {
+   color: #dc2626;
+   font-size: 13px;
+   font-weight: 600;
+   margin: 6px 0 0;
+ }
