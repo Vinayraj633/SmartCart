@@ -2357,7 +2357,12 @@ async function restoreProduct(pid) {
      ======================================================================== */
   async function loadAdminUsers() {
     try {
-      const users = await fetch(`${API}/admin/users`).then(r => r.json());
+      const res = await fetch(`${API}/admin/users`);
+      if (!res.ok) {
+        console.error("loadAdminUsers: HTTP", res.status);
+        return;
+      }
+      const users = await res.json();
       ADMIN_CACHE.users = Array.isArray(users) ? users : [];
       ADMIN_FILTERED_USERS = ADMIN_CACHE.users;
       renderAdminUsers(ADMIN_CACHE.users);
@@ -2371,13 +2376,16 @@ async function restoreProduct(pid) {
     const count = document.getElementById("userCount");
     const noRes = document.getElementById("adminNoUsers");
     if (!tbody) return;
+
     if (count) count.textContent = `${users.length} total`;
     if (noRes) noRes.style.display = users.length === 0 ? "block" : "none";
+
     tbody.innerHTML = "";
 
     users.forEach(u => {
       const tr = document.createElement("tr");
       const isAdmin = u.isAdmin === true;
+
       tr.innerHTML = `
         <td><code>#${u.id}</code></td>
         <td>
@@ -2406,5 +2414,4 @@ async function restoreProduct(pid) {
     );
     renderAdminUsers(ADMIN_FILTERED_USERS);
   }
-
 })();
