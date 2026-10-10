@@ -772,9 +772,67 @@ async function placeOrder(e) {
     showToast(data.error || "Checkout failed", true);
     return false;
   }
-  showToast(`Order #${data.orderId} placed! Final: ${money(data.bill.finalAmount)}`);
-  setTimeout(() => window.location.href = "index.html", 1800);
+
+  // ✅ Flipkart-style success screen (auto-redirects to home after 3s)
+  showOrderSuccess(data.orderId, data.bill.finalAmount);
   return false;
+}
+
+/* ========================================================================
+   ORDER SUCCESS SCREEN (Flipkart-style)
+   ======================================================================== */
+function showOrderSuccess(orderId, amount) {
+  const old = document.getElementById("orderSuccessOverlay");
+  if (old) old.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "orderSuccessOverlay";
+  overlay.className = "order-success-overlay";
+  overlay.innerHTML = `
+    <div class="order-success-card">
+      <div class="order-success-check">
+        <svg viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="24" fill="none" stroke="#16a34a" stroke-width="3"/>
+          <path d="M14 27 L22 35 L38 19"
+                fill="none" stroke="#16a34a" stroke-width="4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="order-success-title">Order Placed Successfully!</h2>
+      <p class="order-success-sub">Thank you for shopping with SmartCart</p>
+      <div class="order-success-details">
+        <div class="order-success-row">
+          <span>Order ID</span>
+          <b>#${orderId}</b>
+        </div>
+        <div class="order-success-row">
+          <span>Total Paid</span>
+          <b>${money(amount)}</b>
+        </div>
+        <div class="order-success-row">
+          <span>Estimated Delivery</span>
+          <b>Tomorrow</b>
+        </div>
+      </div>
+      <div class="order-success-progress">
+        <div class="order-success-bar"></div>
+      </div>
+      <p class="order-success-redirect">Redirecting to home…</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => overlay.classList.add("show"));
+
+  setTimeout(() => {
+    const bar = overlay.querySelector(".order-success-bar");
+    if (bar) bar.style.width = "100%";
+  }, 100);
+
+  setTimeout(() => {
+    overlay.classList.remove("show");
+    setTimeout(() => { window.location.href = "index.html"; }, 300);
+  }, 3000);
 }
 
 /* ========================================================================
