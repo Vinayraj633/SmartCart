@@ -6,9 +6,8 @@ import java.util.List;
 public class Order {
     private int orderId;
     private int userId;
-    private String userName;      // ← ADD THIS
-    private String userEmail;     // ← ADD THIS
-    private BigDecimal subtotal;
+    private String userName;
+    private String userEmail;
     private BigDecimal subtotal;
     private BigDecimal totalDiscount;
     private BigDecimal gst;
@@ -30,9 +29,6 @@ public class Order {
 
     public int getOrderId() { return orderId; }
     public void setOrderId(int orderId) { this.orderId = orderId; }
-
-    public int getUserId() { return userId; }
-    public void setUserId(int userId) { this.userId = userId; }
 
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
