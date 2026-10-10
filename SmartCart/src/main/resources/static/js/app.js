@@ -821,7 +821,7 @@ function switchAccountPanel(panelId, element) {
 }
 
 /* ========================================================================
-   MEMBERSHIP — 3 cards only, no big CURRENT PLAN panel
+   MEMBERSHIP
    ======================================================================== */
 async function renderMembershipSection() {
   const container = document.getElementById("memberGrid");
@@ -883,7 +883,6 @@ function renderMembershipUI() {
       btnAction = `onclick="upgradeTier('${t.name}')"`;
     }
 
-    // Renewal info block — only on the current paid tier
     const renewalInfo = (isCurrent && renewsAt)
       ? `<div class="member-renewal">
            <div class="member-renewal-row">
@@ -959,9 +958,6 @@ function renderMembershipUI() {
     `;
 }
 
-/* ========================================================================
-   MEMBERSHIP UPGRADE — payment modal
-   ======================================================================== */
 function upgradeTier(tier) {
   if (!CURRENT_USER) { showToast("Please login to upgrade", true); return; }
   if (CURRENT_USER.customerType === tier) { showToast("You are already on this tier"); return; }
@@ -1167,9 +1163,6 @@ function openPaymentModal(tier, pricing) {
   });
 }
 
-/* ========================================================================
-   CANCEL / DOWNGRADE
-   ======================================================================== */
 function confirmCancelMembership() {
   const old = document.getElementById("cancelMembershipModal");
   if (old) old.remove();
@@ -1473,9 +1466,6 @@ async function loadMyOrders() {
   }
 }
 
-/* ============================================================
-   AMAZON-STYLE ORDER CARD
-   ============================================================ */
 function renderOrderSideCard(o) {
   const items = o.items || [];
   const totalItems = items.reduce((s, it) => s + it.quantity, 0);
@@ -1691,9 +1681,6 @@ function toggleOrderSideBody(orderId, btn) {
   if (span) span.textContent = isOpen ? "Hide details" : "Order details";
 }
 
-/* ============================================================
-   Cancel order flow
-   ============================================================ */
 async function cancelOrder(orderId) {
   const reason = await showCancelConfirm(orderId);
   if (!reason) return;
@@ -2138,6 +2125,163 @@ function filterAdminOrders() {
   renderAdminOrders(ADMIN_FILTERED_ORDERS);
 }
 
+/* ========================================================================
+   ADMIN — USER DETAILS MODAL  (TOP LEVEL)
+   ======================================================================== */
+function showUserDetails(orderId) {
+  const order = (ADMIN_CACHE.orders || []).find(o => o.orderId === orderId);
+  if (!order) { showToast("Order not found", true); return; }
+
+  const modal = document.getElementById("userDetailsModal");
+  const body  = document.getElementById("userDetailsBody");
+  if (!modal || !body) return;
+
+  const items = order.items || [];
+  const addr  = [order.addressLine, order.city, order.state, order.pincode]
+                  .filter(Boolean).join(", ") || "—";
+
+  const rows = [
+    ["Order ID",      "#" + order.orderId],
+    ["Customer Name", order.userName  || "Guest"],
+    ["Email",         order.userEmail || "—"],
+    ["Phone",         order.phone     || "—"],
+    ["Customer Type", order.customerType || "REGULAR"],
+    ["Order Status",  order.status || "PLACED"],
+    ["Coupon",        order.couponCode || "—"],
+    ["Delivery Address", addr],
+    ["Order Date",    order.createdAt || "—"]
+  ];
+
+  const itemRows = items.map(it => `
+    <tr>
+      <td><code>${escapeHtml(it.productId)}</code></td>
+      <td>${escapeHtml(it.productName || it.productId)}</td>
+      <td>× ${it.quantity}</td>
+      <td>${money(it.unitPrice)}</td>
+      <td><b>${money(it.lineTotal)}</b></td>
+    </tr>`).join("");
+
+  body.innerHTML = `
+    <div class="user-details-section">
+      <div class="user-details-label">Customer Information</div>
+      <table class="user-details-table">
+        <tbody>
+          ${rows.map(([k, v]) => `
+            <tr>
+              <td class="ud-key">${escapeHtml(k)}</td>
+              <td class="ud-val">${escapeHtml(String(v))}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="user-details-section">
+      <div class="user-details-label">Items Ordered (${items.length})</div>
+      <table class="user-details-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Line Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemRows}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="user-details-section">
+      <div class="user-details-label">Bill Summary</div>
+      <table class="user-details-table">
+        <tbody>
+          <tr><td class="ud-key">Subtotal</td>       <td class="ud-val">${money(order.subtotal)}</td></tr>
+          <tr><td class="ud-key">Total Discount</td> <td class="ud-val" style="color:#16a34a;">−${money(order.totalDiscount)}</td></tr>
+          <tr><td class="ud-key">GST</td>            <td class="ud-val">${money(order.gst)}</td></tr>
+          <tr class="ud-total-row"><td class="ud-key">Grand Total</td> <td class="ud-val"><b>${money(order.finalAmount)}</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  modal.classList.add("show");
+}
+
+function closeUserDetails() {
+  const modal = document.getElementById("userDetailsModal");
+  if (modal) modal.classList.remove("show");
+}
+
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("userDetailsModal");
+  if (modal && e.target === modal) modal.classList.remove("show");
+});
+
+/* ========================================================================
+   ADMIN — USERS TAB  (TOP LEVEL)
+   ======================================================================== */
+async function loadAdminUsers() {
+  try {
+    const res = await fetch(`${API}/admin/users`);
+    if (!res.ok) {
+      console.error("loadAdminUsers: HTTP", res.status);
+      return;
+    }
+    const users = await res.json();
+    ADMIN_CACHE.users = Array.isArray(users) ? users : [];
+    ADMIN_FILTERED_USERS = ADMIN_CACHE.users;
+    renderAdminUsers(ADMIN_CACHE.users);
+  } catch (e) {
+    console.error("Failed to load users:", e);
+  }
+}
+
+function renderAdminUsers(users) {
+  const tbody = document.getElementById("adminUserBody");
+  const count = document.getElementById("userCount");
+  const noRes = document.getElementById("adminNoUsers");
+  if (!tbody) return;
+
+  if (count) count.textContent = `${users.length} total`;
+  if (noRes) noRes.style.display = users.length === 0 ? "block" : "none";
+
+  tbody.innerHTML = "";
+
+  users.forEach(u => {
+    const tr = document.createElement("tr");
+    const isAdmin = u.isAdmin === true;
+
+    tr.innerHTML = `
+      <td><code>#${u.id}</code></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="order-avatar" style="width:34px;height:34px;font-size:12px;">${initials(u.name)}</span>
+          <b>${escapeHtml(u.name)}</b>
+        </div>
+      </td>
+      <td>${escapeHtml(u.email)}</td>
+      <td><span class="order-badge-side ${(u.customerType || 'regular').toLowerCase()}">${escapeHtml(u.customerType || "REGULAR")}</span></td>
+      <td>${isAdmin ? '<span style="background:#fef3c7;color:#92400e;font-weight:800;font-size:11px;padding:3px 8px;border-radius:8px;">ADMIN</span>' : '<span style="color:#888;font-size:12px;">User</span>'}</td>
+      <td style="font-size:12px;color:#666;">${escapeHtml(u.createdAt || "—")}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterAdminUsers() {
+  const q = (document.getElementById("adminUserSearch")?.value || "").trim().toLowerCase();
+  const all = ADMIN_CACHE.users || [];
+  ADMIN_FILTERED_USERS = !q ? all : all.filter(u =>
+    String(u.id).includes(q) ||
+    (u.name || "").toLowerCase().includes(q) ||
+    (u.email || "").toLowerCase().includes(q) ||
+    (u.customerType || "").toLowerCase().includes(q)
+  );
+  renderAdminUsers(ADMIN_FILTERED_USERS);
+}
+
 function switchTab(tab) {
   document.querySelectorAll(".tab-btn").forEach(b =>
     b.classList.toggle("active", b.dataset.tab === tab));
@@ -2218,7 +2362,7 @@ async function restoreProduct(pid) {
 }
 
 /* ========================================================================
-   BOOTSTRAP
+   BOOTSTRAP — must be the LAST block in the file
    ======================================================================== */
 (async function init() {
   if (PAGE === "admin") { await loadAdminDashboard(); return; }
@@ -2256,162 +2400,4 @@ async function restoreProduct(pid) {
   else if (PAGE === "checkout") await loadCheckout();
   else if (PAGE === "profile") await loadProfile();
   else if (PAGE === "wishlist") await renderWishlist();
-
-  /* ========================================================================
-     ADMIN — USER DETAILS MODAL
-     ======================================================================== */
-  function showUserDetails(orderId) {
-    const order = (ADMIN_CACHE.orders || []).find(o => o.orderId === orderId);
-    if (!order) { showToast("Order not found", true); return; }
-
-    const modal = document.getElementById("userDetailsModal");
-    const body  = document.getElementById("userDetailsBody");
-    if (!modal || !body) return;
-
-    const items = order.items || [];
-    const addr  = [order.addressLine, order.city, order.state, order.pincode]
-                    .filter(Boolean).join(", ") || "—";
-
-    const rows = [
-      ["Order ID",      "#" + order.orderId],
-      ["Customer Name", order.userName  || "Guest"],
-      ["Email",         order.userEmail || "—"],
-      ["Phone",         order.phone     || "—"],
-      ["Customer Type", order.customerType || "REGULAR"],
-      ["Order Status",  order.status || "PLACED"],
-      ["Coupon",        order.couponCode || "—"],
-      ["Delivery Address", addr],
-      ["Order Date",    order.createdAt || "—"]
-    ];
-
-    const itemRows = items.map(it => `
-      <tr>
-        <td><code>${escapeHtml(it.productId)}</code></td>
-        <td>${escapeHtml(it.productName || it.productId)}</td>
-        <td>× ${it.quantity}</td>
-        <td>${money(it.unitPrice)}</td>
-        <td><b>${money(it.lineTotal)}</b></td>
-      </tr>`).join("");
-
-    body.innerHTML = `
-      <div class="user-details-section">
-        <div class="user-details-label">Customer Information</div>
-        <table class="user-details-table">
-          <tbody>
-            ${rows.map(([k, v]) => `
-              <tr>
-                <td class="ud-key">${escapeHtml(k)}</td>
-                <td class="ud-val">${escapeHtml(String(v))}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="user-details-section">
-        <div class="user-details-label">Items Ordered (${items.length})</div>
-        <table class="user-details-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Unit Price</th>
-              <th>Line Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemRows}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="user-details-section">
-        <div class="user-details-label">Bill Summary</div>
-        <table class="user-details-table">
-          <tbody>
-            <tr><td class="ud-key">Subtotal</td>       <td class="ud-val">${money(order.subtotal)}</td></tr>
-            <tr><td class="ud-key">Total Discount</td> <td class="ud-val" style="color:#16a34a;">−${money(order.totalDiscount)}</td></tr>
-            <tr><td class="ud-key">GST</td>            <td class="ud-val">${money(order.gst)}</td></tr>
-            <tr class="ud-total-row"><td class="ud-key">Grand Total</td> <td class="ud-val"><b>${money(order.finalAmount)}</b></td></tr>
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    modal.classList.add("show");
-  }
-
-  function closeUserDetails() {
-    const modal = document.getElementById("userDetailsModal");
-    if (modal) modal.classList.remove("show");
-  }
-
-  // Close on outside click
-  document.addEventListener("click", (e) => {
-    const modal = document.getElementById("userDetailsModal");
-    if (modal && e.target === modal) modal.classList.remove("show");
-  });
-
-  /* ========================================================================
-     ADMIN — USERS
-     ======================================================================== */
-  async function loadAdminUsers() {
-    try {
-      const res = await fetch(`${API}/admin/users`);
-      if (!res.ok) {
-        console.error("loadAdminUsers: HTTP", res.status);
-        return;
-      }
-      const users = await res.json();
-      ADMIN_CACHE.users = Array.isArray(users) ? users : [];
-      ADMIN_FILTERED_USERS = ADMIN_CACHE.users;
-      renderAdminUsers(ADMIN_CACHE.users);
-    } catch (e) {
-      console.error("Failed to load users:", e);
-    }
-  }
-
-  function renderAdminUsers(users) {
-    const tbody = document.getElementById("adminUserBody");
-    const count = document.getElementById("userCount");
-    const noRes = document.getElementById("adminNoUsers");
-    if (!tbody) return;
-
-    if (count) count.textContent = `${users.length} total`;
-    if (noRes) noRes.style.display = users.length === 0 ? "block" : "none";
-
-    tbody.innerHTML = "";
-
-    users.forEach(u => {
-      const tr = document.createElement("tr");
-      const isAdmin = u.isAdmin === true;
-
-      tr.innerHTML = `
-        <td><code>#${u.id}</code></td>
-        <td>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="order-avatar" style="width:34px;height:34px;font-size:12px;">${initials(u.name)}</span>
-            <b>${escapeHtml(u.name)}</b>
-          </div>
-        </td>
-        <td>${escapeHtml(u.email)}</td>
-        <td><span class="order-badge-side ${(u.customerType || 'regular').toLowerCase()}">${escapeHtml(u.customerType || "REGULAR")}</span></td>
-        <td>${isAdmin ? '<span style="background:#fef3c7;color:#92400e;font-weight:800;font-size:11px;padding:3px 8px;border-radius:8px;">ADMIN</span>' : '<span style="color:#888;font-size:12px;">User</span>'}</td>
-        <td style="font-size:12px;color:#666;">${escapeHtml(u.createdAt || "—")}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function filterAdminUsers() {
-    const q = (document.getElementById("adminUserSearch")?.value || "").trim().toLowerCase();
-    const all = ADMIN_CACHE.users || [];
-    ADMIN_FILTERED_USERS = !q ? all : all.filter(u =>
-      String(u.id).includes(q) ||
-      (u.name || "").toLowerCase().includes(q) ||
-      (u.email || "").toLowerCase().includes(q) ||
-      (u.customerType || "").toLowerCase().includes(q)
-    );
-    renderAdminUsers(ADMIN_FILTERED_USERS);
-  }
 })();
