@@ -286,16 +286,22 @@ function ensureUserLoaded() {
 }
 async function loadUserHeader() {
   await ensureUserLoaded();
-  const info = document.getElementById("userInfo");
-  const login = document.getElementById("loginLink");
+  const info   = document.getElementById("userInfo");
+  const login  = document.getElementById("loginLink");
   const logout = document.getElementById("logoutLink");
+  const signup = document.getElementById("signupLink");
+
   if (CURRENT_USER) {
-    if (info) info.textContent = `Hi, ${CURRENT_USER.name.split(" ")[0]} · ${CURRENT_USER.customerType}`;
-    if (login) login.style.display = "none";
+    // Logged in → show "Hi, Name" + Logout only
+    if (info)   info.textContent = `Hi, ${CURRENT_USER.name.split(" ")[0]} · ${CURRENT_USER.customerType}`;
+    if (login)  login.style.display  = "none";
+    if (signup) signup.style.display = "none";
     if (logout) logout.style.display = "inline";
   } else {
-    if (info) info.textContent = "";
-    if (login) login.style.display = "inline";
+    // Not logged in → show Login + Create Account
+    if (info)   info.textContent = "";
+    if (login)  login.style.display  = "inline";
+    if (signup) signup.style.display = "inline";
     if (logout) logout.style.display = "none";
   }
 }
